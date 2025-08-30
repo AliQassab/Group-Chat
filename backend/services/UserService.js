@@ -1,0 +1,73 @@
+import { v4 as uuidv4 } from "uuid";
+
+class UserService {
+  constructor() {
+    this.connectedUsers = new Map(); // connectionId -> userData
+    this.usernames = new Set(); // Track active usernames
+  }
+
+  addUser(connectionId, username) {
+    // Check if username is already taken
+    if (this.usernames.has(username)) {
+      return { success: false, error: "Username already taken" };
+    }
+
+    const userData = {
+      id: uuidv4(),
+      username,
+      connectionId,
+      joinedAt: Date.now(),
+    };
+
+    this.connectedUsers.set(connectionId, userData);
+    this.usernames.add(username);
+
+    return { success: true, user: userData };
+  }
+
+  removeUser(connectionId) {
+    const userData = this.connectedUsers.get(connectionId);
+    if (userData) {
+      this.usernames.delete(userData.username);
+      this.connectedUsers.delete(connectionId);
+      return userData;
+    }
+    return null;
+  }
+
+  getUser(connectionId) {
+    return this.connectedUsers.get(connectionId);
+  }
+
+  getAllUsers() {
+    return Array.from(this.connectedUsers.values());
+  }
+
+  getUsernames() {
+    return Array.from(this.usernames);
+  }
+
+  validateUsername(username) {
+    const errors = [];
+
+    if (!username || username.trim() === "") {
+      errors.push("Username is required");
+    }
+
+    if (username && username.length > 30) {
+      errors.push("Username too long (max 30 characters)");
+    }
+
+    if (username && !/^[a-zA-Z0-9_-]+$/.test(username)) {
+      errors.push(
+        "Username can only contain letters, numbers, underscore, and dash"
+      );
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+}
+export default new UserService();

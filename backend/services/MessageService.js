@@ -1,0 +1,202 @@
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+class MessageService {
+  constructor() {
+    this.messages = [];
+    this.messageIdCounter = 1;
+    this.reactions = new Map();
+    this.dataFile = path.join(__dirname, "../data/messages.json");
+
+    this.loadMessages();
+  }
+  async loadMessages() {
+    try {
+      const data = await fs.readFile(this.dataFile, "utf8");
+      const parsed = JSON.parse(data);
+      this.messages = parsed.messages || [];
+      this.messageIdCounter = parsed.nextId || 1;
+    } catch (error) {
+      console.log("📝 No existing messages file, starting fresh");
+      this.messages = [];
+      this.messageIdCounter = 1;
+    }
+  }
+
+  async saveMessages() {
+    try {
+      await fs.mkdir(path.dirname(this.dataFile), { recursive: true });
+
+      const data = {
+        messages: this.messages,
+        nextId: this.messageIdCounter,
+        lastUpdated: new Date().toISOString(),
+      };
+
+      await fs.writeFile(this.dataFile, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error("Failed to save messages:", error);
+    }
+  }
+
+  createMessage(author, content) {
+    const message = {
+      id: Date.now(),
+      author,
+      content,
+      timestamp: Date.now(),
+      likes: 0, // store usernames who liked
+      dislikes: 0, // store usernames who disliked
+    };
+    this.messages.push(message);
+    this.saveMessages();
+    return message;
+  }
+  getAllMessages() {
+    return [...this.messages]; // Return copy to prevent external modification
+  }
+
+  getMessagesAfter(timestamp) {
+    return this.messages.filter((msg) => msg.timestamp > timestamp);
+  }
+
+  getMessageById(id) {
+    return this.messages.find((msg) => msg.id === parseInt(id));
+  }
+
+  likeMessage(messageId, username) {
+    const message = this.messages.find((m) => m.id === messageId);
+    if (!message) return null;
+
+    if (!this.reactions.has(messageId)) {
+      this.reactions.set(messageId, { likes: new Set(), dislikes: new Set() });
+    }
+    const reactions = this.reactions.get(messageId);
+
+    // Remove from dislikes if present
+    reactions.dislikes.delete(username);
+
+    if (reactions.likes.has(username)) {
+      // Toggle off like
+      reactions.likes.delete(username);
+    } else {
+      reactions.likes.add(username);
+    }
+
+    // Update numbers only
+    message.likes = reactions.likes.size;
+    message.dislikes = reactions.dislikes.size;
+
+    this.saveMessages();
+    return message;
+  }
+
+  dislikeMessage(messageId, username) {
+    const message = this.messages.find((m) => m.id === messageId);
+    if (!message) return null;
+
+    if (!this.reactions.has(messageId)) {
+      this.reactions.set(messageId, { likes: new Set(), dislikes: new Set() });
+    }
+    const reactions = this.reactions.get(messageId);
+
+    // Remove from likes if present
+    reactions.likes.delete(username);
+
+    if (reactions.dislikes.has(username)) {
+      // Toggle off dislike
+      reactions.dislikes.delete(username);
+    } else {
+      reactions.dislikes.add(username);
+    }
+
+    // Update numbers only
+    message.likes = reactions.likes.size;
+    message.dislikes = reactions.dislikes.size;
+
+    this.saveMessages();
+    return message;
+  }
+  likeMessage(messageId, username) {
+    const message = this.messages.find((m) => m.id === messageId);
+    if (!message) return null;
+
+    if (!this.reactions.has(messageId)) {
+      this.reactions.set(messageId, { likes: new Set(), dislikes: new Set() });
+    }
+    const reactions = this.reactions.get(messageId);
+
+    // Remove from dislikes if present
+    reactions.dislikes.delete(username);
+
+    if (reactions.likes.has(username)) {
+      // Toggle off like
+      reactions.likes.delete(username);
+    } else {
+      reactions.likes.add(username);
+    }
+
+    // Update numbers only
+    message.likes = reactions.likes.size;
+    message.dislikes = reactions.dislikes.size;
+
+    this.saveMessages();
+    return message;
+  }
+
+  dislikeMessage(messageId, username) {
+    const message = this.messages.find((m) => m.id === messageId);
+    if (!message) return null;
+
+    if (!this.reactions.has(messageId)) {
+      this.reactions.set(messageId, { likes: new Set(), dislikes: new Set() });
+    }
+    const reactions = this.reactions.get(messageId);
+
+    // Remove from likes if present
+    reactions.likes.delete(username);
+
+    if (reactions.dislikes.has(username)) {
+      // Toggle off dislike
+      reactions.dislikes.delete(username);
+    } else {
+      reactions.dislikes.add(username);
+    }
+
+    // Update numbers only
+    message.likes = reactions.likes.size;
+    message.dislikes = reactions.dislikes.size;
+
+    this.saveMessages();
+    return message;
+  }
+
+  validateMessage(author, content) {
+    const errors = [];
+
+    if (!author || author.trim() === "") {
+      errors.push("Author is required");
+    }
+
+    if (!content || content.trim() === "") {
+      errors.push("Message content is required");
+    }
+
+    if (author && author.length > 50) {
+      errors.push("Author name too long (max 50 characters)");
+    }
+
+    if (content && content.length > 500) {
+      errors.push("Message too long (max 500 characters)");
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+}
+export default new MessageService();
