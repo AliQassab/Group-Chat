@@ -11,7 +11,7 @@ class WebSocketChatApp {
     this.messageQueue = []; // Queue messages while disconnected
 
     this.serverUrl =
-      "ws://https://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
+      "https://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
 
     this.initializeElements();
     this.setupEventListeners();
