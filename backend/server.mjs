@@ -1,3 +1,4 @@
+// Update your server.mjs - add your frontend URL here
 import express from "express";
 import http from "http";
 import cors from "cors";
@@ -10,22 +11,28 @@ import { createWebSocketServer } from "./websocket/websocket-server.mjs";
 
 const PORT = process.env.PORT || 3001;
 
-// NEW: read allowed origins from env (comma-separated), fallback to localhost for dev
+const frontendURL =
+  "https://aliqassab-websocket-frontend.hosting.codeyourfuture.io";
+
 const allowedOrigins = (
-  process.env.ALLOWED_ORIGINS || "http://localhost:5500,http://127.0.0.1:5500"
+  process.env.ALLOWED_ORIGINS ||
+  `${frontendURL},http://localhost:5500,http://127.0.0.1:5500`
 )
   .split(",")
   .map((s) => s.trim());
+
+console.log("🌐 Allowed origins:", allowedOrigins);
 
 const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5500",
-      "http://127.0.0.1:5500",
-      "https://aliqassab-websocket-frontend.hosting.codeyourfuture.io",
-    ],
+    origin: (origin, cb) => {
+      // allow no-origin (curl/health checks) and any configured origin
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      console.log(`❌ CORS blocked origin: ${origin}`);
+      return cb(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -37,23 +44,28 @@ app.get("/", (_req, res) => {
     ok: true,
     message: "API is live",
     port: Number(PORT),
+    allowedOrigins: allowedOrigins,
   });
 });
 
 const messageService = MessageService;
 const userService = UserService;
 
-// Keep your existing app routes
-app.use("/", routes); // unchanged
+app.use("/", routes);
 
 const server = http.createServer(app);
 const wsHandler = new WebSocketHandler(messageService, userService);
-createWebSocketServer(server, wsHandler);
+
+// Pass the allowed origins to WebSocket server
+createWebSocketServer(server, wsHandler, {
+  allowedOrigins: allowedOrigins,
+});
 
 server.listen(PORT, () => {
   console.log(`🚀 Chat server running on port ${PORT}`);
-  console.log(`📡 WebSocket server ready`);
+  console.log(`🔡 WebSocket server ready`);
   console.log(`🔗 HTTP API available at http://localhost:${PORT}`);
+  console.log(`🔒 Allowed origins:`, allowedOrigins);
 });
 
 process.on("SIGTERM", () => {
