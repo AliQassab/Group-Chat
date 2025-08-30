@@ -42,9 +42,8 @@ app.use(express.json());
 app.get("/", (_req, res) => {
   res.status(200).json({
     ok: true,
-    message: "API is live",
+    message: "<h1>👋🏻 Hello from the backend</h1>",
     port: Number(PORT),
-    allowedOrigins: allowedOrigins,
   });
 });
 
