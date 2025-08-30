@@ -9,9 +9,8 @@ class WebSocketChatApp {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000;
     this.messageQueue = []; // Queue messages while disconnected
-
     this.serverUrl =
-      "https://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
+      "wss://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
 
     this.initializeElements();
     this.setupEventListeners();
