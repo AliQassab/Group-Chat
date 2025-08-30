@@ -16,7 +16,13 @@ const allowedOrigins = (
 )
   .split(",")
   .map((s) => s.trim());
-
+const wsAllowedOrigins = (
+  process.env.WS_ALLOWED_ORIGINS ||
+  process.env.ALLOWED_ORIGINS ||
+  allowedOrigins.join(",")
+)
+  .split(",")
+  .map((s) => s.trim());
 const app = express();
 
 app.use(
@@ -48,7 +54,7 @@ app.use("/", routes); // unchanged
 
 const server = http.createServer(app);
 const wsHandler = new WebSocketHandler(messageService, userService);
-createWebSocketServer(server, wsHandler);
+createWebSocketServer(server, wsHandler, { allowedOrigins: wsAllowedOrigins });
 
 server.listen(PORT, () => {
   console.log(`🚀 Chat server running on port ${PORT}`);
