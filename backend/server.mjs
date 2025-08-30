@@ -16,22 +16,16 @@ const allowedOrigins = (
 )
   .split(",")
   .map((s) => s.trim());
-const wsAllowedOrigins = (
-  process.env.WS_ALLOWED_ORIGINS ||
-  process.env.ALLOWED_ORIGINS ||
-  allowedOrigins.join(",")
-)
-  .split(",")
-  .map((s) => s.trim());
+
 const app = express();
 
 app.use(
   cors({
-    origin: (origin, cb) => {
-      // allow no-origin (curl/health checks) and any configured origin
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error("Not allowed by CORS"));
-    },
+    origin: [
+      "http://localhost:5500",
+      "http://127.0.0.1:5500",
+      "https://aliqassab-websocket-frontend.hosting.codeyourfuture.io",
+    ],
     credentials: true,
   })
 );
@@ -54,7 +48,7 @@ app.use("/", routes); // unchanged
 
 const server = http.createServer(app);
 const wsHandler = new WebSocketHandler(messageService, userService);
-createWebSocketServer(server, wsHandler, { allowedOrigins: wsAllowedOrigins });
+createWebSocketServer(server, wsHandler);
 
 server.listen(PORT, () => {
   console.log(`🚀 Chat server running on port ${PORT}`);
