@@ -1,6 +1,6 @@
 class WebSocketChatApp {
   constructor() {
-    this.ws = null;
+    // this.ws = null;
     this.username = "";
     this.messages = [];
     this.users = [];
@@ -11,7 +11,7 @@ class WebSocketChatApp {
     this.messageQueue = []; // Queue messages while disconnected
     this.serverUrl =
       "wss://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
-
+    this.ws = new WebSocket(this.serverUrl);
     this.initializeElements();
     this.setupEventListeners();
     this.showJoinModal();
