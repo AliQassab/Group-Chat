@@ -1,0 +1,46 @@
+{
+  "messages": [
+    {
+      "id": 1758102755370,
+      "author": "五郎",
+      "content": "Hi",
+      "timestamp": 1758102755370,
+      "likes": 0,
+      "dislikes": 0
+    },
+    {
+      "id": 1758102762556,
+      "author": "五郎",
+      "content": "how are you?",
+      "timestamp": 1758102762556,
+      "likes": 0,
+      "dislikes": 0
+    },
+    {
+      "id": 1758102801924,
+      "author": "五郎",
+      "content": "hello",
+      "timestamp": 1758102801924,
+      "likes": 0,
+      "dislikes": 0
+    },
+    {
+      "id": 1758102845592,
+      "author": "五郎",
+      "content": "testing",
+      "timestamp": 1758102845592,
+      "likes": 0,
+      "dislikes": 0
+    },
+    {
+      "id": 1758103294319,
+      "author": "محمد",
+      "content": "hi",
+      "timestamp": 1758103294319,
+      "likes": 0,
+      "dislikes": 0
+    }
+  ],
+  "nextId": 1,
+  "lastUpdated": "2025-09-17T10:01:34.320Z"
+}

@@ -9,15 +9,28 @@ class WebSocketChatApp {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000;
     this.messageQueue = []; // Queue messages while disconnected
-    this.serverUrl =
-      "wss://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
-    this.ws = new WebSocket(this.serverUrl);
+    this.serverUrl = this.getWebSocketUrl();
+    this.ws = null; // Will be initialized in connectWebSocket
     this.initializeElements();
     this.setupEventListeners();
     this.showJoinModal();
 
     // Auto-resize textarea
     this.setupAutoResize();
+  }
+
+  getWebSocketUrl() {
+    // Get current page protocol and host
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
+
+    // For development (localhost or 127.0.0.1)
+    if (host.includes("localhost") || host.includes("127.0.0.1")) {
+      return "ws://localhost:3001";
+    }
+
+    // For production - use your production WebSocket URL
+    return "wss://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
   }
 
   initializeElements() {
@@ -70,7 +83,11 @@ class WebSocketChatApp {
     });
 
     window.addEventListener("online", () => {
+      console.log("🌐 Network connection restored");
       if (!this.isConnected && this.username) {
+        console.log("🔄 Auto-reconnecting after network restoration");
+        // Reset reconnection attempts for fresh start
+        this.reconnectAttempts = 0;
         this.connectWebSocket();
       }
     });
@@ -115,9 +132,10 @@ class WebSocketChatApp {
       return;
     }
 
-    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+    // Allow Unicode letters, numbers, underscore, dash, and spaces (but not only spaces)
+    if (!/^[\p{L}\p{N}_\s-]+$/u.test(username) || /^\s+$/.test(username)) {
       this.showJoinError(
-        "Username can only contain letters, numbers, underscore, and dash"
+        "Username can contain letters, numbers, spaces, underscore, and dash"
       );
       return;
     }
@@ -310,6 +328,17 @@ class WebSocketChatApp {
     if (message === "Username already taken") {
       this.showJoinModal();
       this.showJoinError(message);
+    } else if (message === "Must join with username first") {
+      // User was disconnected, try to rejoin automatically
+      if (this.username) {
+        console.log("🔄 Auto-rejoining with existing username");
+        this.sendToServer({
+          command: "join",
+          data: { username: this.username },
+        });
+      } else {
+        this.showJoinModal();
+      }
     } else {
       this.showInputError(message);
     }
@@ -571,15 +600,17 @@ class WebSocketChatApp {
   formatTime(timestamp) {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
+    const isToday = now.toDateString() === date.toDateString();
 
-    if (diffInHours < 24) {
-      return date.toLocaleTimeString("en-US", {
+    if (isToday) {
+      // Show time only for today's messages
+      return date.toLocaleTimeString(undefined, {
         hour: "2-digit",
         minute: "2-digit",
       });
     } else {
-      return date.toLocaleDateString("en-US", {
+      // Show date and time for older messages
+      return date.toLocaleString(undefined, {
         month: "short",
         day: "numeric",
         hour: "2-digit",

@@ -58,9 +58,12 @@ class UserService {
       errors.push("Username too long (max 30 characters)");
     }
 
-    if (username && !/^[a-zA-Z0-9_-]+$/.test(username)) {
+    if (
+      username &&
+      (!/^[\p{L}\p{N}_\s-]+$/u.test(username) || /^\s+$/.test(username))
+    ) {
       errors.push(
-        "Username can only contain letters, numbers, underscore, and dash"
+        "Username can contain letters, numbers, spaces, underscore, and dash"
       );
     }
 

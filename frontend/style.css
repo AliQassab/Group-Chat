@@ -526,11 +526,47 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   body {
-    padding: 10px;
+    padding: 5px;
+    min-height: 100vh;
+    height: 100vh; /* Force full height */
   }
 
   .chat-app {
-    height: 95vh;
+    height: 100vh; /* Use full viewport height */
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-header {
+    flex-shrink: 0; /* Don't shrink header */
+  }
+
+  .chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Allow flex child to shrink */
+    overflow: hidden;
+  }
+
+  .messages-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Allow flex child to shrink */
+    overflow: hidden;
+  }
+
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    min-height: 0; /* Allow flex child to shrink */
+  }
+
+  .input-section {
+    flex-shrink: 0; /* Don't shrink input area */
   }
 
   .sidebar {
@@ -540,46 +576,123 @@ body {
     height: 100%;
     z-index: 999;
     transition: right 0.3s ease;
+    width: 280px;
   }
 
   .sidebar.open {
     right: 0;
   }
 
-  .chat-content {
-    flex-direction: column;
-  }
-
   .message {
     max-width: 85%;
   }
 
+  .input-container {
+    flex-wrap: nowrap;
+    min-width: 0; /* Allow flex items to shrink */
+  }
+
+  .message-input {
+    min-width: 0; /* Prevent input from overflowing */
+    flex-shrink: 1;
+    max-height: 80px; /* Limit height on mobile */
+  }
+
+  .send-btn {
+    flex-shrink: 0; /* Keep button size fixed */
+    min-width: 60px;
+  }
+
   .modal {
-    margin: 20px;
-    width: auto;
+    margin: 10px;
+    width: calc(100vw - 20px);
+    max-width: 400px;
+  }
+
+  /* Ensure proper touch scrolling */
+  .messages-container,
+  .users-list {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0); /* Enable hardware acceleration */
+  }
+
+  /* Handle mobile keyboard */
+  .chat-app {
+    position: relative;
+  }
+
+  /* Prevent zoom on input focus */
+  input,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Additional mobile fixes for very small screens */
+@media (max-width: 480px) {
+  .chat-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .header-left h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .message-input {
+    padding: 0.5rem 0.75rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .send-btn {
+    padding: 0.5rem;
+    min-width: 50px;
   }
 }
 
 /* Scrollbar Styling */
 .messages-container::-webkit-scrollbar,
-.users-list::-webkit-scrollbar {
+.users-list::-webkit-scrollbar,
+.message-input::-webkit-scrollbar {
   width: 6px;
 }
 
 .messages-container::-webkit-scrollbar-track,
-.users-list::-webkit-scrollbar-track {
+.users-list::-webkit-scrollbar-track,
+.message-input::-webkit-scrollbar-track {
   background: var(--light-gray);
 }
 
 .messages-container::-webkit-scrollbar-thumb,
-.users-list::-webkit-scrollbar-thumb {
+.users-list::-webkit-scrollbar-thumb,
+.message-input::-webkit-scrollbar-thumb {
   background: var(--medium-gray);
   border-radius: 3px;
 }
 
 .messages-container::-webkit-scrollbar-thumb:hover,
-.users-list::-webkit-scrollbar-thumb:hover {
+.users-list::-webkit-scrollbar-thumb:hover,
+.message-input::-webkit-scrollbar-thumb:hover {
   background: var(--dark-gray);
+}
+
+/* Hide scrollbar for message input when not needed */
+.message-input {
+  scrollbar-width: thin;
+  scrollbar-color: var(--medium-gray) transparent;
+}
+
+/* For Firefox */
+.message-input {
+  scrollbar-width: none;
+}
+
+/* Alternative: completely hide scrollbar for message input */
+.message-input::-webkit-scrollbar {
+  display: none;
 }
 
 /* Loading Animation */
