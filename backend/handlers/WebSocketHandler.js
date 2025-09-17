@@ -23,6 +23,16 @@ class WebSocketHandler {
     return null;
   }
 
+  // Middleware
+  withAuth(connectionId, handler) {
+    const user = this.userService.getUser(connectionId);
+    if (!user) {
+      this.sendError(connectionId, "Must join with username first");
+      return null;
+    }
+    return handler(user);
+  }
+
   async handleMessage(connectionId, message) {
     if (message.type !== "utf8") {
       this.sendError(connectionId, "Only text messages are supported");
@@ -109,100 +119,86 @@ class WebSocketHandler {
   }
 
   async handleSendMessage(connectionId, data) {
-    const user = this.userService.getUser(connectionId);
-    if (!user) {
-      this.sendError(connectionId, "Must join with username first");
-      return;
-    }
+    return this.withAuth(connectionId, async (user) => {
+      const { content } = data.data || {};
 
-    const { content } = data.data || {};
-
-    const validation = this.messageService.validateMessage(
-      user.username,
-      content
-    );
-    if (!validation.isValid) {
-      this.sendError(connectionId, validation.errors.join(", "));
-      return;
-    }
-
-    try {
-      const message = await this.messageService.createMessage(
+      const validation = this.messageService.validateMessage(
         user.username,
         content
       );
+      if (!validation.isValid) {
+        this.sendError(connectionId, validation.errors.join(", "));
+        return;
+      }
 
-      this.broadcastToAll({
-        command: "new-message",
-        data: { message },
-      });
+      try {
+        const message = await this.messageService.createMessage(
+          user.username,
+          content
+        );
 
-      console.log(
-        `💬 Message from ${user.username}: ${content.substring(0, 50)}...`
-      );
-    } catch (err) {
-      console.error("❌ Failed to create message:", err);
-      this.sendError(connectionId, "Could not save message");
-    }
+        this.broadcastToAll({
+          command: "new-message",
+          data: { message },
+        });
+
+        console.log(
+          `💬 Message from ${user.username}: ${content.substring(0, 50)}...`
+        );
+      } catch (err) {
+        console.error("❌ Failed to create message:", err);
+        this.sendError(connectionId, "Could not save message");
+      }
+    });
   }
 
   async handleLikeMessage(connectionId, data) {
-    const user = this.userService.getUser(connectionId);
-    if (!user) {
-      this.sendError(connectionId, "Must join with username first");
-      return;
-    }
+    return this.withAuth(connectionId, (user) => {
+      const { messageId } = data.data || {};
+      const updatedMessage = this.messageService.likeMessage(
+        messageId,
+        user.username
+      );
 
-    const { messageId } = data.data || {};
-    const updatedMessage = this.messageService.likeMessage(
-      messageId,
-      user.username
-    );
+      if (!updatedMessage) {
+        this.sendError(connectionId, "Message not found");
+        return;
+      }
 
-    if (!updatedMessage) {
-      this.sendError(connectionId, "Message not found");
-      return;
-    }
+      this.broadcastToAll({
+        command: "message-updated",
+        data: { message: updatedMessage },
+      });
 
-    this.broadcastToAll({
-      command: "message-updated",
-      data: { message: updatedMessage },
+      console.log(`👍 ${user.username} liked message ${messageId}`);
     });
-
-    console.log(`👍 ${user.username} liked message ${messageId}`);
   }
 
   async handleDislikeMessage(connectionId, data) {
-    const user = this.userService.getUser(connectionId);
-    if (!user) {
-      this.sendError(connectionId, "Must join with username first");
-      return;
-    }
+    return this.withAuth(connectionId, (user) => {
+      const { messageId } = data.data || {};
+      const updatedMessage = this.messageService.dislikeMessage(
+        messageId,
+        user.username
+      );
 
-    const { messageId } = data.data || {};
-    const updatedMessage = this.messageService.dislikeMessage(
-      messageId,
-      user.username // ✅ pass username
-    );
+      if (!updatedMessage) {
+        this.sendError(connectionId, "Message not found");
+        return;
+      }
 
-    if (!updatedMessage) {
-      this.sendError(connectionId, "Message not found");
-      return;
-    }
+      this.broadcastToAll({
+        command: "message-updated",
+        data: { message: updatedMessage },
+      });
 
-    this.broadcastToAll({
-      command: "message-updated",
-      data: { message: updatedMessage },
+      console.log(`👎 ${user.username} disliked message ${messageId}`);
     });
-
-    console.log(`👎 ${user.username} disliked message ${messageId}`);
   }
 
   handleGetMessages(connectionId, data) {
     const { since } = data.data || {};
-    const messages = since
-      ? this.messageService.getMessagesAfter(since)
-      : this.messageService.getAllMessages();
+    const messages = this.messageService.getMessages(since);
 
     this.sendToConnection(connectionId, {
       command: "messages",
@@ -264,11 +260,13 @@ class WebSocketHandler {
   }
 
   broadcastToOthers(excludeConnectionId, data) {
+    // Temporarily remove the excluded connection to avoid checking it in the loop
+    const excludedConnection = this.connections.get(excludeConnectionId);
+    this.connections.delete(excludeConnectionId);
+
+    // Broadcast to all remaining connections
     this.connections.forEach((connectionData, connectionId) => {
-      if (
-        connectionId !== excludeConnectionId &&
-        connectionData.connection.connected
-      ) {
+      if (connectionData.connection.connected) {
         try {
           connectionData.connection.sendUTF(JSON.stringify(data));
         } catch (error) {
@@ -276,6 +274,11 @@ class WebSocketHandler {
         }
       }
     });
+
+    // Restore the excluded connection
+    if (excludedConnection) {
+      this.connections.set(excludeConnectionId, excludedConnection);
+    }
   }
 
   generateConnectionId() {

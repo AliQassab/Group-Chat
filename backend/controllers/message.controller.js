@@ -2,9 +2,7 @@ import MessageService from "../services/MessageService.js";
 export const getAllMessages = (req, res) => {
   const { since } = req.query;
   try {
-    const messages = since
-      ? MessageService.getMessagesAfter(parseInt(since))
-      : MessageService.getAllMessages();
+    const messages = MessageService.getMessages(since);
 
     res.status(200).json({
       success: true,

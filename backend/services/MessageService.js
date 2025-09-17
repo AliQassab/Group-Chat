@@ -63,6 +63,12 @@ class MessageService {
     return this.messages.filter((msg) => msg.timestamp > timestamp);
   }
 
+  getMessages(since = null) {
+    return since
+      ? this.getMessagesAfter(parseInt(since))
+      : this.getAllMessages();
+  }
+
   getMessageById(id) {
     return this.messages.find((msg) => msg.id === parseInt(id));
   }
