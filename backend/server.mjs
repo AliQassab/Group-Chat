@@ -6,7 +6,6 @@ import cors from "cors";
 import MessageService from "./services/MessageService.js";
 import UserService from "./services/UserService.js";
 import WebSocketHandler from "./handlers/WebSocketHandler.js";
-import routes from "./routes/routes.js";
 import { createWebSocketServer } from "./websocket/websocket-server.mjs";
 
 const PORT = process.env.PORT || 3001;
@@ -49,8 +48,6 @@ app.get("/", (_req, res) => {
 
 const messageService = MessageService;
 const userService = UserService;
-
-app.use("/", routes);
 
 const server = http.createServer(app);
 const wsHandler = new WebSocketHandler(messageService, userService);
