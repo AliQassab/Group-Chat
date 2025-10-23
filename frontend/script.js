@@ -4,18 +4,17 @@ class WebSocketChatApp {
     this.messages = [];
     this.users = [];
     this.isConnected = false;
-    this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
-    this.reconnectDelay = 1000;
-    this.messageQueue = []; // Queue messages while disconnected
+    this.ws = null;
     this.serverUrl = this.getWebSocketUrl();
-    this.ws = null; // Will be initialized in connectWebSocket
+
+    this.init();
+  }
+
+  init() {
     this.initializeElements();
     this.setupEventListeners();
-    this.showJoinModal();
-
-    // Auto-resize textarea
     this.setupAutoResize();
+    this.showJoinModal();
   }
 
   getWebSocketUrl() {
@@ -74,31 +73,12 @@ class WebSocketChatApp {
       }
     });
 
-    // Window events
+    // Cleanup on page unload
     window.addEventListener("beforeunload", () => {
       if (this.ws) {
         this.ws.close();
       }
     });
-
-    window.addEventListener("online", () => {
-      console.log("🌐 Network connection restored");
-      if (!this.isConnected && this.username) {
-        console.log("🔄 Auto-reconnecting after network restoration");
-        // Reset reconnection attempts for fresh start
-        this.reconnectAttempts = 0;
-        this.connectWebSocket();
-      }
-    });
-
-    window.addEventListener("offline", () => {
-      this.updateConnectionStatus("disconnected");
-    });
-
-    // Mobile sidebar toggle (if needed)
-    if (window.innerWidth <= 768) {
-      this.setupMobileSidebar();
-    }
   }
 
   setupAutoResize() {
@@ -166,7 +146,6 @@ class WebSocketChatApp {
       this.ws.onopen = () => {
         console.log("🔗 Connected to WebSocket server");
         this.isConnected = true;
-        this.reconnectAttempts = 0;
         this.updateConnectionStatus("connected");
         this.enableInput();
 
@@ -175,9 +154,6 @@ class WebSocketChatApp {
           command: "join",
           data: { username: this.username },
         });
-
-        // Process queued messages
-        this.processMessageQueue();
       };
 
       this.ws.onmessage = (event) => {
@@ -189,58 +165,22 @@ class WebSocketChatApp {
         }
       };
 
-      this.ws.onclose = (event) => {
-        console.log(
-          "🔌 WebSocket connection closed:",
-          event.code,
-          event.reason
-        );
+      this.ws.onclose = () => {
+        console.log("🔌 WebSocket connection closed");
         this.isConnected = false;
         this.updateConnectionStatus("disconnected");
         this.disableInput();
-
-        // Attempt reconnection if not a clean close
-        if (event.code !== 1000 && this.username) {
-          this.attemptReconnect();
-        }
       };
 
       this.ws.onerror = (error) => {
         console.error("❌ WebSocket error:", error);
         this.isConnected = false;
         this.updateConnectionStatus("disconnected");
-        this.showNotification("Connection error occurred", "error");
       };
     } catch (error) {
       console.error("❌ Failed to create WebSocket connection:", error);
       this.updateConnectionStatus("disconnected");
-      this.showNotification("Failed to connect to server", "error");
     }
-  }
-
-  attemptReconnect() {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log("❌ Max reconnection attempts reached");
-      this.showNotification(
-        "Unable to reconnect. Please refresh the page.",
-        "error"
-      );
-      return;
-    }
-
-    this.reconnectAttempts++;
-    this.updateConnectionStatus("connecting");
-
-    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-
-    setTimeout(() => {
-      if (!this.isConnected) {
-        console.log(
-          `🔄 Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`
-        );
-        this.connectWebSocket();
-      }
-    }, delay);
   }
 
   handleServerMessage(data) {
@@ -282,7 +222,7 @@ class WebSocketChatApp {
 
   handleJoinSuccess(data) {
     console.log("🎉 Successfully joined chat");
-    this.showNotification("Successfully joined the chat!", "success");
+    console.log("✅ Successfully joined the chat!");
 
     // Load message history
     if (data.messages) {
@@ -301,9 +241,9 @@ class WebSocketChatApp {
     this.displayMessage(message, true);
     this.scrollToBottom();
 
-    // Play notification sound for other users' messages
+    // Message received from another user
     if (message.author !== this.username) {
-      this.playNotificationSound();
+      console.log("📨 New message from:", message.author);
     }
   }
 
@@ -318,7 +258,7 @@ class WebSocketChatApp {
   handleUserJoined(data) {
     this.showSystemMessage(`${data.username} joined the chat`);
     this.updateUsersList(data.onlineUsers);
-    this.showNotification(`${data.username} joined the chat`, "info");
+    console.log(`👋 ${data.username} joined the chat`);
   }
 
   handleUserLeft(data) {
@@ -352,18 +292,8 @@ class WebSocketChatApp {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));
     } else {
-      console.warn("⚠️ WebSocket not connected, queuing message");
-      this.messageQueue.push(data);
-      this.showInputError(
-        "Not connected to server. Message will be sent when reconnected."
-      );
-    }
-  }
-
-  processMessageQueue() {
-    while (this.messageQueue.length > 0) {
-      const queuedMessage = this.messageQueue.shift();
-      this.sendToServer(queuedMessage);
+      console.warn("⚠️ WebSocket not connected");
+      this.showInputError("Not connected to server");
     }
   }
 
@@ -639,22 +569,6 @@ class WebSocketChatApp {
     return div.innerHTML;
   }
 
-  showNotification(message, type = "info") {
-    const notification = document.createElement("div");
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    // Auto-remove after 3 seconds
-    setTimeout(() => {
-      notification.style.animation = "notificationSlide 0.3s ease-out reverse";
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
-    }, 3000);
-  }
-
   showInputError(message) {
     this.inputError.textContent = message;
     this.inputError.classList.remove("hidden");
@@ -666,33 +580,6 @@ class WebSocketChatApp {
   clearInputError() {
     this.inputError.classList.add("hidden");
     this.inputError.textContent = "";
-  }
-
-  playNotificationSound() {
-    // Simple notification sound using Web Audio API
-    try {
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      oscillator.frequency.value = 800;
-      oscillator.type = "sine";
-
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(
-        0.01,
-        audioContext.currentTime + 0.2
-      );
-
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.2);
-    } catch (error) {
-      // Ignore audio errors (browsers might block audio without user interaction)
-    }
   }
 
   // Cleanup method
