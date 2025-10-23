@@ -439,16 +439,16 @@ class WebSocketChatApp {
                     )}</div>
                     <div class="message-footer">
                         <div class="message-actions">
-                            <button class="action-btn like-btn" onclick="chatApp.likeMessage(${
+                            <button class="action-btn like-btn" onclick="chatApp.likeMessage('${
                               message.id
-                            })" title="Like this message">
+                            }')" title="Like this message">
                                 👍 <span id="likes-${message.id}">${
       message.likes
     }</span>
                             </button>
-                            <button class="action-btn dislike-btn" onclick="chatApp.dislikeMessage(${
+                            <button class="action-btn dislike-btn" onclick="chatApp.dislikeMessage('${
                               message.id
-                            })" title="Dislike this message">
+                            }')" title="Dislike this message">
                                 👎 <span id="dislikes-${message.id}">${
       message.dislikes
     }</span>

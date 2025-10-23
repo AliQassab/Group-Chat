@@ -25,22 +25,22 @@
       "dislikes": 0
     },
     {
-      "id": 1758102845592,
-      "author": "五郎",
-      "content": "testing",
-      "timestamp": 1758102845592,
-      "likes": 0,
-      "dislikes": 0
-    },
-    {
       "id": 1758103294319,
       "author": "محمد",
       "content": "hi",
       "timestamp": 1758103294319,
-      "likes": 1,
+      "likes": 0,
+      "dislikes": 0
+    },
+    {
+      "id": "0837f76c-c2a6-4b42-817c-628e9e99c419",
+      "author": "Ali1",
+      "content": "hi",
+      "timestamp": 1761229300872,
+      "likes": 0,
       "dislikes": 0
     }
   ],
   "nextId": 1,
-  "lastUpdated": "2025-10-22T11:48:59.823Z"
+  "lastUpdated": "2025-10-23T14:21:40.872Z"
 }
