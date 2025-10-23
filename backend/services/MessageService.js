@@ -1,6 +1,7 @@
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { v4 as uuidv4 } from "uuid";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,7 +12,16 @@ class MessageService {
     this.reactions = new Map();
     this.dataFile = path.join(__dirname, "../data/messages.json");
 
-    this.loadMessages();
+    // Initialize synchronously - load messages will be called separately
+    this.initialized = false;
+  }
+
+  // Initialize the service asynchronously
+  async initialize() {
+    if (!this.initialized) {
+      await this.loadMessages();
+      this.initialized = true;
+    }
   }
   async loadMessages() {
     try {
@@ -20,7 +30,10 @@ class MessageService {
       this.messages = parsed.messages || [];
       this.messageIdCounter = parsed.nextId || 1;
     } catch (error) {
-      console.log("📝 No existing messages file, starting fresh");
+      console.log(
+        "📝 No existing messages file, starting fresh",
+        error.message
+      );
       this.messages = [];
       this.messageIdCounter = 1;
     }
@@ -44,7 +57,7 @@ class MessageService {
 
   createMessage(author, content) {
     const message = {
-      id: Date.now(),
+      id: uuidv4(),
       author,
       content,
       timestamp: Date.now(),
@@ -65,67 +78,14 @@ class MessageService {
 
   getMessages(since = null) {
     return since
-      ? this.getMessagesAfter(parseInt(since))
+      ? this.getMessagesAfter(Number.parseInt(since))
       : this.getAllMessages();
   }
 
   getMessageById(id) {
-    return this.messages.find((msg) => msg.id === parseInt(id));
+    return this.messages.find((msg) => msg.id === id);
   }
 
-  likeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id === messageId);
-    if (!message) return null;
-
-    if (!this.reactions.has(messageId)) {
-      this.reactions.set(messageId, { likes: new Set(), dislikes: new Set() });
-    }
-    const reactions = this.reactions.get(messageId);
-
-    // Remove from dislikes if present
-    reactions.dislikes.delete(username);
-
-    if (reactions.likes.has(username)) {
-      // Toggle off like
-      reactions.likes.delete(username);
-    } else {
-      reactions.likes.add(username);
-    }
-
-    // Update numbers only
-    message.likes = reactions.likes.size;
-    message.dislikes = reactions.dislikes.size;
-
-    this.saveMessages();
-    return message;
-  }
-
-  dislikeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id === messageId);
-    if (!message) return null;
-
-    if (!this.reactions.has(messageId)) {
-      this.reactions.set(messageId, { likes: new Set(), dislikes: new Set() });
-    }
-    const reactions = this.reactions.get(messageId);
-
-    // Remove from likes if present
-    reactions.likes.delete(username);
-
-    if (reactions.dislikes.has(username)) {
-      // Toggle off dislike
-      reactions.dislikes.delete(username);
-    } else {
-      reactions.dislikes.add(username);
-    }
-
-    // Update numbers only
-    message.likes = reactions.likes.size;
-    message.dislikes = reactions.dislikes.size;
-
-    this.saveMessages();
-    return message;
-  }
   likeMessage(messageId, username) {
     const message = this.messages.find((m) => m.id === messageId);
     if (!message) return null;
@@ -205,4 +165,10 @@ class MessageService {
     };
   }
 }
-export default new MessageService();
+// Create singleton instance
+const messageService = new MessageService();
+
+// Initialize asynchronously
+await messageService.initialize();
+
+export default messageService;

@@ -54,8 +54,12 @@ class UserService {
       errors.push("Username is required");
     }
 
-    if (username && username.length > 30) {
-      errors.push("Username too long (max 30 characters)");
+    if (username && username.length < 3) {
+      errors.push("Username too short (min 3 characters)");
+    }
+
+    if (username && username.length > 20) {
+      errors.push("Username too long (max 20 characters)");
     }
 
     if (

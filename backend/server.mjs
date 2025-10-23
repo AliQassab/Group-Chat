@@ -1,6 +1,6 @@
 // Update your server.mjs - add your frontend URL here
 import express from "express";
-import http from "http";
+import http from "node:http";
 import cors from "cors";
 
 import MessageService from "./services/MessageService.js";

@@ -1,6 +1,5 @@
 class WebSocketChatApp {
   constructor() {
-    // this.ws = null;
     this.username = "";
     this.messages = [];
     this.users = [];
@@ -26,11 +25,11 @@ class WebSocketChatApp {
 
     // For development (localhost or 127.0.0.1)
     if (host.includes("localhost") || host.includes("127.0.0.1")) {
-      return "ws://localhost:3001";
+      return `${protocol}//localhost:3001`;
     }
 
     // For production - use your production WebSocket URL
-    return "wss://aliaqassab-websocket-backend.hosting.codeyourfuture.io";
+    return `${protocol}//aliaqassab-websocket-backend.hosting.codeyourfuture.io`;
   }
 
   initializeElements() {
@@ -127,8 +126,13 @@ class WebSocketChatApp {
       return;
     }
 
-    if (username.length > 30) {
-      this.showJoinError("Username too long (max 30 characters)");
+    if (username.length < 3) {
+      this.showJoinError("Username too short (min 3 characters)");
+      return;
+    }
+
+    if (username.length > 20) {
+      this.showJoinError("Username too long (max 20 characters)");
       return;
     }
 
@@ -544,6 +548,7 @@ class WebSocketChatApp {
       const currentUserElement = this.usersList.querySelector(
         ".current-user .user-name"
       );
+
       if (currentUserElement) {
         currentUserElement.innerHTML +=
           ' <span style="font-size: 0.75rem; opacity: 0.8;">(you)</span>';
