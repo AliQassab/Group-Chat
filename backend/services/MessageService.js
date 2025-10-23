@@ -83,11 +83,11 @@ class MessageService {
   }
 
   getMessageById(id) {
-    return this.messages.find((msg) => msg.id === id);
+    return this.messages.find((msg) => msg.id == id); // Use == instead of === for type flexibility
   }
 
   likeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id === messageId);
+    const message = this.messages.find((m) => m.id == messageId); // Use == for type flexibility
     if (!message) return null;
 
     if (!this.reactions.has(messageId)) {
@@ -114,7 +114,7 @@ class MessageService {
   }
 
   dislikeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id === messageId);
+    const message = this.messages.find((m) => m.id == messageId); // Use == for type flexibility
     if (!message) return null;
 
     if (!this.reactions.has(messageId)) {
