@@ -39,8 +39,22 @@
       "timestamp": 1761229300872,
       "likes": 0,
       "dislikes": 0
+    },
+    {
+      "id": "232f6d54-0933-45eb-aaa0-cbb33d4c72d7",
+      "author": "mo1",
+      "content": "hey",
+      "timestamp": 1761230021932,
+      "likes": 1,
+      "dislikes": 0
+    },
+    {
+      "id": "26817bee-cfe4-42e3-9265-49a4fd9ec765",
+      "author": "Ali",
+      "content": "hi",
+      "timestamp": 1761230556574,
+      "likes": 0,
+      "dislikes": 1
     }
-  ],
-  "nextId": 1,
-  "lastUpdated": "2025-10-23T14:21:40.872Z"
+  ]
 }
