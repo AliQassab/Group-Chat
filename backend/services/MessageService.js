@@ -8,7 +8,6 @@ const __dirname = path.dirname(__filename);
 class MessageService {
   constructor() {
     this.messages = [];
-    this.messageIdCounter = 1;
     this.reactions = new Map();
     this.dataFile = path.join(__dirname, "../data/messages.json");
 
@@ -28,14 +27,12 @@ class MessageService {
       const data = await fs.readFile(this.dataFile, "utf8");
       const parsed = JSON.parse(data);
       this.messages = parsed.messages || [];
-      this.messageIdCounter = parsed.nextId || 1;
     } catch (error) {
       console.log(
         "📝 No existing messages file, starting fresh",
         error.message
       );
       this.messages = [];
-      this.messageIdCounter = 1;
     }
   }
 
@@ -45,8 +42,6 @@ class MessageService {
 
       const data = {
         messages: this.messages,
-        nextId: this.messageIdCounter,
-        lastUpdated: new Date().toISOString(),
       };
 
       await fs.writeFile(this.dataFile, JSON.stringify(data, null, 2));
@@ -83,11 +78,11 @@ class MessageService {
   }
 
   getMessageById(id) {
-    return this.messages.find((msg) => msg.id == id); // Use == instead of === for type flexibility
+    return this.messages.find((msg) => msg.id == id);
   }
 
   likeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id == messageId); // Use == for type flexibility
+    const message = this.messages.find((m) => m.id == messageId);
     if (!message) return null;
 
     if (!this.reactions.has(messageId)) {
@@ -114,7 +109,7 @@ class MessageService {
   }
 
   dislikeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id == messageId); // Use == for type flexibility
+    const message = this.messages.find((m) => m.id == messageId);
     if (!message) return null;
 
     if (!this.reactions.has(messageId)) {

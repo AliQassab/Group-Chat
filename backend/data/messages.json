@@ -8,14 +8,7 @@
       "likes": 0,
       "dislikes": 0
     },
-    {
-      "id": 1758102762556,
-      "author": "五郎",
-      "content": "how are you?",
-      "timestamp": 1758102762556,
-      "likes": 0,
-      "dislikes": 0
-    },
+
     {
       "id": 1758102801924,
       "author": "五郎",
@@ -33,28 +26,28 @@
       "dislikes": 0
     },
     {
-      "id": "0837f76c-c2a6-4b42-817c-628e9e99c419",
-      "author": "Ali1",
-      "content": "hi",
-      "timestamp": 1761229300872,
-      "likes": 0,
-      "dislikes": 0
-    },
-    {
-      "id": "232f6d54-0933-45eb-aaa0-cbb33d4c72d7",
-      "author": "mo1",
-      "content": "hey",
-      "timestamp": 1761230021932,
-      "likes": 1,
-      "dislikes": 0
-    },
-    {
       "id": "26817bee-cfe4-42e3-9265-49a4fd9ec765",
       "author": "Ali",
       "content": "hi",
       "timestamp": 1761230556574,
       "likes": 0,
-      "dislikes": 1
+      "dislikes": 0
+    },
+    {
+      "id": "964da50a-58ba-457e-89a0-bd7264636267",
+      "author": "Ali",
+      "content": "test",
+      "timestamp": 1761243500054,
+      "likes": 1,
+      "dislikes": 0
+    },
+    {
+      "id": "7da71084-3d96-490b-a257-2db044f755c5",
+      "author": "Mou",
+      "content": "hi",
+      "timestamp": 1761244150849,
+      "likes": 1,
+      "dislikes": 0
     }
   ]
 }

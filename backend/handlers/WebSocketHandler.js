@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 class WebSocketHandler {
   constructor(messageService, userService) {
     this.messageService = messageService;
@@ -41,7 +43,6 @@ class WebSocketHandler {
 
     try {
       const data = JSON.parse(message.utf8Data);
-      console.log(`📨 Message from ${connectionId}:`, data.command);
 
       switch (data.command) {
         case "join":
@@ -169,8 +170,6 @@ class WebSocketHandler {
         command: "message-updated",
         data: { message: updatedMessage },
       });
-
-      console.log(`👍 ${user.username} liked message ${messageId}`);
     });
   }
 
@@ -191,8 +190,6 @@ class WebSocketHandler {
         command: "message-updated",
         data: { message: updatedMessage },
       });
-
-      console.log(`👎 ${user.username} disliked message ${messageId}`);
     });
   }
 
@@ -206,11 +203,7 @@ class WebSocketHandler {
     });
   }
 
-  handleDisconnection(connectionId, reasonCode, description) {
-    console.log(
-      `🔌 Connection ${connectionId} disconnected: ${reasonCode} - ${description}`
-    );
-
+  handleDisconnection(connectionId) {
     const userData = this.userService.removeUser(connectionId);
     this.connections.delete(connectionId);
 
@@ -223,17 +216,14 @@ class WebSocketHandler {
           onlineUsers: this.userService.getUsernames(),
         },
       });
-
-      console.log(`👋 User ${userData.username} left`);
     }
   }
 
   sendToConnection(connectionId, data) {
     const connectionData = this.connections.get(connectionId);
-    if (connectionData && connectionData.connection.connected) {
+    if (connectionData?.connection.connected) {
       try {
         connectionData.connection.sendUTF(JSON.stringify(data));
-        console.log("📨 Sent:", data.command);
       } catch (error) {
         console.error(`❌ Error sending to connection ${connectionId}:`, error);
       }
@@ -283,7 +273,7 @@ class WebSocketHandler {
   }
 
   generateConnectionId() {
-    return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    return uuidv4();
   }
 }
 

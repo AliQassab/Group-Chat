@@ -7,10 +7,6 @@ class WebSocketChatApp {
     this.ws = null;
     this.serverUrl = this.getWebSocketUrl();
 
-    this.init();
-  }
-
-  init() {
     this.initializeElements();
     this.setupEventListeners();
     this.setupAutoResize();
@@ -188,7 +184,6 @@ class WebSocketChatApp {
 
     switch (data.command) {
       case "connection-established":
-        console.log("✅ Connection established");
         break;
 
       case "join-success":
@@ -221,9 +216,6 @@ class WebSocketChatApp {
   }
 
   handleJoinSuccess(data) {
-    console.log("🎉 Successfully joined chat");
-    console.log("✅ Successfully joined the chat!");
-
     // Load message history
     if (data.messages) {
       this.messages = data.messages;
@@ -240,11 +232,6 @@ class WebSocketChatApp {
     this.messages.push(message);
     this.displayMessage(message, true);
     this.scrollToBottom();
-
-    // Message received from another user
-    if (message.author !== this.username) {
-      console.log("📨 New message from:", message.author);
-    }
   }
 
   handleMessageUpdate(updatedMessage) {
@@ -258,7 +245,6 @@ class WebSocketChatApp {
   handleUserJoined(data) {
     this.showSystemMessage(`${data.username} joined the chat`);
     this.updateUsersList(data.onlineUsers);
-    console.log(`👋 ${data.username} joined the chat`);
   }
 
   handleUserLeft(data) {
