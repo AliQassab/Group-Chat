@@ -64,17 +64,15 @@ class MessageService {
     return message;
   }
   getAllMessages() {
-    return [...this.messages]; // Return copy to prevent external modification
+    return [...this.messages];
   }
 
   getMessagesAfter(timestamp) {
     return this.messages.filter((msg) => msg.timestamp > timestamp);
   }
 
-  getMessages(since = null) {
-    return since
-      ? this.getMessagesAfter(Number.parseInt(since))
-      : this.getAllMessages();
+  getMessages() {
+    return this.getAllMessages();
   }
 
   getMessageById(id) {

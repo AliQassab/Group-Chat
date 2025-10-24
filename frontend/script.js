@@ -541,12 +541,8 @@ class WebSocketChatApp {
   }
 
   formatMessage(content) {
-    // Basic message formatting
-    return this.escapeHtml(content)
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // **bold**
-      .replace(/\*(.*?)\*/g, "<em>$1</em>") // *italic*
-      .replace(/__(.*?)__/g, "<u>$1</u>") // __underline__
-      .replace(/\n/g, "<br>"); // Line breaks
+    // Escape HTML and convert line breaks
+    return this.escapeHtml(content).replace(/\n/g, "<br>");
   }
 
   escapeHtml(text) {

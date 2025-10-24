@@ -64,9 +64,23 @@ server.listen(PORT, () => {
   console.log(`🔒 Allowed origins:`, allowedOrigins);
 });
 
-process.on("SIGTERM", () => {
-  console.log("SIGTERM received, shutting down gracefully");
+const gracefulShutdown = () => {
+  console.log("Shutting down gracefully...");
+
+  // Close WebSocket connections
+  wsHandler.connections.forEach((connectionData) => {
+    if (connectionData.connection.connected) {
+      connectionData.connection.close();
+    }
+  });
+
+  // Close HTTP server
   server.close(() => {
     console.log("Server closed");
+    process.exit(0);
   });
-});
+};
+
+process.on("SIGINT", gracefulShutdown);
+
+process.on("SIGTERM", gracefulShutdown);

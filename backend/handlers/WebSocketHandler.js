@@ -61,10 +61,6 @@ class WebSocketHandler {
           await this.handleDislikeMessage(connectionId, data);
           break;
 
-        case "get-messages":
-          this.handleGetMessages(connectionId, data);
-          break;
-
         default:
           this.sendError(connectionId, `Unknown command: ${data.command}`);
       }
@@ -190,16 +186,6 @@ class WebSocketHandler {
         command: "message-updated",
         data: { message: updatedMessage },
       });
-    });
-  }
-
-  handleGetMessages(connectionId, data) {
-    const { since } = data.data || {};
-    const messages = this.messageService.getMessages(since);
-
-    this.sendToConnection(connectionId, {
-      command: "messages",
-      data: { messages },
     });
   }
 

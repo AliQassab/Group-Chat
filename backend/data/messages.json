@@ -8,7 +8,6 @@
       "likes": 0,
       "dislikes": 0
     },
-
     {
       "id": 1758102801924,
       "author": "五郎",
@@ -38,7 +37,7 @@
       "author": "Ali",
       "content": "test",
       "timestamp": 1761243500054,
-      "likes": 1,
+      "likes": 0,
       "dislikes": 0
     },
     {
@@ -48,6 +47,14 @@
       "timestamp": 1761244150849,
       "likes": 1,
       "dislikes": 0
+    },
+    {
+      "id": "880cde8b-1f40-4913-97ce-e25fcd3f3050",
+      "author": "Ali",
+      "content": "Hi",
+      "timestamp": 1761298205628,
+      "likes": 0,
+      "dislikes": 1
     }
   ]
 }
