@@ -140,7 +140,6 @@ class WebSocketChatApp {
       this.ws = new WebSocket(this.serverUrl);
 
       this.ws.onopen = () => {
-        console.log("🔗 Connected to WebSocket server");
         this.isConnected = true;
         this.updateConnectionStatus("connected");
         this.enableInput();
@@ -180,8 +179,6 @@ class WebSocketChatApp {
   }
 
   handleServerMessage(data) {
-    console.log("📨 Received:", data.command);
-
     switch (data.command) {
       case "connection-established":
         break;

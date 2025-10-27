@@ -9,7 +9,6 @@ class WebSocketHandler {
 
   addConnection(connectionId, connection) {
     this.connections.set(connectionId, { connection, user: null });
-    console.log(`➕ Connection added: ${connectionId}`);
   }
   removeConnection(connectionId) {
     const connectionData = this.connections.get(connectionId);
@@ -19,7 +18,6 @@ class WebSocketHandler {
         this.userService.removeUser(connectionId);
       }
       this.connections.delete(connectionId);
-      console.log(`➖ Connection removed: ${connectionId}`);
       return connectionData.user;
     }
     return null;

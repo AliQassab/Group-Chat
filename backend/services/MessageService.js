@@ -10,12 +10,9 @@ class MessageService {
     this.messages = [];
     this.reactions = new Map();
     this.dataFile = path.join(__dirname, "../data/messages.json");
-
-    // Initialize synchronously - load messages will be called separately
     this.initialized = false;
   }
 
-  // Initialize the service asynchronously
   async initialize() {
     if (!this.initialized) {
       await this.loadMessages();
@@ -56,8 +53,8 @@ class MessageService {
       author,
       content,
       timestamp: Date.now(),
-      likes: 0, // store usernames who liked
-      dislikes: 0, // store usernames who disliked
+      likes: 0,
+      dislikes: 0,
     };
     this.messages.push(message);
     this.saveMessages();
@@ -67,20 +64,12 @@ class MessageService {
     return [...this.messages];
   }
 
-  getMessagesAfter(timestamp) {
-    return this.messages.filter((msg) => msg.timestamp > timestamp);
-  }
-
-  getMessages() {
-    return this.getAllMessages();
-  }
-
   getMessageById(id) {
     return this.messages.find((msg) => msg.id == id);
   }
 
   likeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id == messageId);
+    const message = this.getMessageById(messageId);
     if (!message) return null;
 
     if (!this.reactions.has(messageId)) {
@@ -107,7 +96,7 @@ class MessageService {
   }
 
   dislikeMessage(messageId, username) {
-    const message = this.messages.find((m) => m.id == messageId);
+    const message = this.getMessageById(messageId);
     if (!message) return null;
 
     if (!this.reactions.has(messageId)) {

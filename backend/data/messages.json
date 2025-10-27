@@ -40,19 +40,12 @@
       "likes": 0,
       "dislikes": 0
     },
+
     {
-      "id": "7da71084-3d96-490b-a257-2db044f755c5",
-      "author": "Mou",
-      "content": "hi",
-      "timestamp": 1761244150849,
-      "likes": 1,
-      "dislikes": 0
-    },
-    {
-      "id": "880cde8b-1f40-4913-97ce-e25fcd3f3050",
-      "author": "Ali",
-      "content": "Hi",
-      "timestamp": 1761298205628,
+      "id": "3c1f7519-61d1-41e0-b784-068cbcefd86b",
+      "author": "Mo1",
+      "content": "Hi\nHow are you?",
+      "timestamp": 1761467557965,
       "likes": 0,
       "dislikes": 1
     }

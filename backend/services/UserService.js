@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 
 class UserService {
   constructor() {
-    this.connectedUsers = new Map(); // connectionId -> userData
-    this.usernames = new Set(); // Track active usernames
+    this.connectedUsers = new Map();
+    this.usernames = new Set();
   }
 
   addUser(connectionId, username) {
@@ -26,7 +26,7 @@ class UserService {
   }
 
   removeUser(connectionId) {
-    const userData = this.connectedUsers.get(connectionId);
+    const userData = this.getUser(connectionId);
     if (userData) {
       this.usernames.delete(userData.username);
       this.connectedUsers.delete(connectionId);
