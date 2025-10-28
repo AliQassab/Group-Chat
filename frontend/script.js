@@ -36,7 +36,6 @@ class WebSocketChatApp {
     this.joinError = document.getElementById("joinError");
 
     // Header elements
-    this.logoutBtn = document.getElementById("logoutBtn");
     this.connectionStatus = document.getElementById("connectionStatus");
     this.onlineUsersCount = document.getElementById("onlineUsersCount");
 
@@ -69,9 +68,6 @@ class WebSocketChatApp {
         this.sendMessage();
       }
     });
-
-    // Logout button
-    this.logoutBtn.addEventListener("click", () => this.logout());
 
     // Cleanup on page unload
     window.addEventListener("beforeunload", () => {
@@ -227,9 +223,6 @@ class WebSocketChatApp {
     if (data.onlineUsers) {
       this.updateUsersList(data.onlineUsers);
     }
-
-    // Show logout button
-    this.logoutBtn.classList.remove("hidden");
   }
 
   logout() {
@@ -249,9 +242,8 @@ class WebSocketChatApp {
     this.messagesContainer.innerHTML = "";
     this.messageInput.value = "";
 
-    // Show join modal and hide logout button
+    // Show join modal
     this.showJoinModal();
-    this.logoutBtn.classList.add("hidden");
     this.disableInput();
   }
 
@@ -473,6 +465,12 @@ class WebSocketChatApp {
         username === this.username ? "current-user" : ""
       }`;
 
+      // Add logout button for current user
+      const logoutBtn =
+        username === this.username
+          ? '<button class="logout-btn-inline" title="Logout">⇥</button>'
+          : "";
+
       userItem.innerHTML = `
                         <div class="user-avatar">${username
                           .charAt(0)
@@ -480,8 +478,20 @@ class WebSocketChatApp {
                         <div class="user-name">${this.escapeHtml(
                           username
                         )}</div>
+                        ${logoutBtn}
                         <div class="online-indicator"></div>
                     `;
+
+      // Add click listener to logout button
+      if (username === this.username) {
+        const logoutButton = userItem.querySelector(".logout-btn-inline");
+        if (logoutButton) {
+          logoutButton.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.logout();
+          });
+        }
+      }
 
       this.usersList.appendChild(userItem);
     });
