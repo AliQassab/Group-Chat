@@ -36,6 +36,7 @@ class WebSocketChatApp {
     this.joinError = document.getElementById("joinError");
 
     // Header elements
+    this.logoutBtn = document.getElementById("logoutBtn");
     this.connectionStatus = document.getElementById("connectionStatus");
     this.onlineUsersCount = document.getElementById("onlineUsersCount");
 
@@ -68,6 +69,9 @@ class WebSocketChatApp {
         this.sendMessage();
       }
     });
+
+    // Logout button
+    this.logoutBtn.addEventListener("click", () => this.logout());
 
     // Cleanup on page unload
     window.addEventListener("beforeunload", () => {
@@ -223,6 +227,32 @@ class WebSocketChatApp {
     if (data.onlineUsers) {
       this.updateUsersList(data.onlineUsers);
     }
+
+    // Show logout button
+    this.logoutBtn.classList.remove("hidden");
+  }
+
+  logout() {
+    // Close WebSocket connection cleanly
+    if (this.ws) {
+      this.ws.close();
+    }
+
+    // Reset state
+    this.username = "";
+    this.messages = [];
+    this.users = [];
+    this.isConnected = false;
+    this.ws = null;
+
+    // Clear UI
+    this.messagesContainer.innerHTML = "";
+    this.messageInput.value = "";
+
+    // Show join modal and hide logout button
+    this.showJoinModal();
+    this.logoutBtn.classList.add("hidden");
+    this.disableInput();
   }
 
   handleNewMessage(message) {

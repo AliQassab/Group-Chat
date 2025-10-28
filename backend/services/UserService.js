@@ -30,7 +30,7 @@ class UserService {
   removeUser(connectionId) {
     const userData = this.getUser(connectionId);
     if (userData) {
-      this.usernames.delete(userData.username);
+      this.usernames.delete(userData.username.toLowerCase());
       this.connectedUsers.delete(connectionId);
       return userData;
     }
@@ -46,7 +46,10 @@ class UserService {
   }
 
   getUsernames() {
-    return Array.from(this.usernames);
+    // Return original usernames from connected users (not normalized)
+    return Array.from(this.connectedUsers.values()).map(
+      (user) => user.username
+    );
   }
 
   validateUsername(username) {
