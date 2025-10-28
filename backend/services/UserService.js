@@ -8,7 +8,9 @@ class UserService {
 
   addUser(connectionId, username) {
     // Check if username is already taken
-    if (this.usernames.has(username)) {
+    const normalizedUsername = username.toLowerCase();
+
+    if (this.usernames.has(normalizedUsername)) {
       return { success: false, error: "Username already taken" };
     }
 
@@ -20,7 +22,7 @@ class UserService {
     };
 
     this.connectedUsers.set(connectionId, userData);
-    this.usernames.add(username);
+    this.usernames.add(normalizedUsername);
 
     return { success: true, user: userData };
   }
