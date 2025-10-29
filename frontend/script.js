@@ -14,16 +14,14 @@ class WebSocketChatApp {
   }
 
   getWebSocketUrl() {
-    // Get current page protocol and host
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.host;
+    const protocol = globalThis.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = globalThis.location.host;
 
     // For development (localhost or 127.0.0.1)
     if (host.includes("localhost") || host.includes("127.0.0.1")) {
       return `${protocol}//localhost:3001`;
     }
 
-    // For production - use your production WebSocket URL
     return `${protocol}//aliaqassab-websocket-backend.hosting.codeyourfuture.io`;
   }
 
@@ -70,7 +68,7 @@ class WebSocketChatApp {
     });
 
     // Cleanup on page unload
-    window.addEventListener("beforeunload", () => {
+    globalThis.addEventListener("beforeunload", () => {
       if (this.ws) {
         this.ws.close();
       }
@@ -613,12 +611,12 @@ class WebSocketChatApp {
 const chatApp = new WebSocketChatApp();
 
 // Global cleanup
-window.addEventListener("beforeunload", () => {
+globalThis.addEventListener("beforeunload", () => {
   chatApp.destroy();
 });
 
 // Global error handler
-window.addEventListener("error", (event) => {
+globalThis.addEventListener("error", (event) => {
   console.error("❌ Global error:", event.error);
 });
 
