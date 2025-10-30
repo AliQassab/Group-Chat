@@ -136,10 +136,6 @@ class WebSocketHandler {
           command: "new-message",
           data: { message },
         });
-
-        console.log(
-          `💬 Message from ${user.username}: ${content.substring(0, 50)}...`
-        );
       } catch (err) {
         console.error("❌ Failed to create message:", err);
         this.sendError(connectionId, "Could not save message");
@@ -222,7 +218,6 @@ class WebSocketHandler {
   }
 
   broadcastToAll(data) {
-    // eslint-disable-next-line no-restricted-syntax
     this.connections.forEach((connectionData, connectionId) => {
       if (connectionData.connection.connected) {
         try {

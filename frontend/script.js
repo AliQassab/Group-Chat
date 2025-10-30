@@ -22,7 +22,8 @@ class WebSocketChatApp {
       return `${protocol}//localhost:3001`;
     }
 
-    return `${protocol}//aliaqassab-websocket-backend.hosting.codeyourfuture.io`;
+    // return `${protocol}//aliaqassab-websocket-backend.hosting.codeyourfuture.io`;
+    return `${protocol}//group-chat-1vb0.onrender.com`;
   }
 
   initializeElements() {

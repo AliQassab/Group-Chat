@@ -9,8 +9,10 @@ import { createWebSocketServer } from "./websocket/websocket-server.mjs";
 
 const PORT = process.env.PORT || 3001;
 
+// const frontendURL =
+//   "https://aliqassab-websocket-frontend.hosting.codeyourfuture.io";
 const frontendURL =
-  "https://aliqassab-websocket-frontend.hosting.codeyourfuture.io";
+  "https://group-chat-qkfza2wis-alis-projects-1a097e53.vercel.app";
 
 const allowedOrigins = (
   process.env.ALLOWED_ORIGINS ||
