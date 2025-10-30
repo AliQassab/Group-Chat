@@ -11,8 +11,7 @@ const PORT = process.env.PORT || 3001;
 
 // const frontendURL =
 //   "https://aliqassab-websocket-frontend.hosting.codeyourfuture.io";
-const frontendURL =
-  "https://group-chat-qkfza2wis-alis-projects-1a097e53.vercel.app";
+const frontendURL = "https://group-chat-one.vercel.app";
 
 const allowedOrigins = (
   process.env.ALLOWED_ORIGINS ||
